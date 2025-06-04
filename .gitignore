@@ -1,4 +1,5 @@
 data/neo4j
+data/file-index.json
 src/__pycache__
 .env
 models

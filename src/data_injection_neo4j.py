@@ -57,4 +57,4 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
         for i, embedding in enumerate(embeddings):
             DocumentNode(vector=embedding.tolist(), content=splits[i].page_content, filename=splits[i].metadata["filename"]).save()
         
-        print(f"Updating done!")    
+        print("Updating done!")    
