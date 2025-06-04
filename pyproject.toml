@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "copicrotte"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "lancedb",
+    "langchain-openai",
+    "langchain-text-splitters",
+    "pydantic-ai-slim[openai,logfire]",
+    "python-dotenv",
+    "torch",
+    "transformers>=4.36.0",
+    "neo4j",
+    "neomodel",
+    "simple-file-checksum",
+]

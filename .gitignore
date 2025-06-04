@@ -1,0 +1,4 @@
+data/neo4j
+src/__pycache__
+.env
+models
