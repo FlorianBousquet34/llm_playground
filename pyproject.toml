@@ -19,4 +19,6 @@ dependencies = [
     "neo4j",
     "neomodel",
     "simple-file-checksum",
+    "tree-sitter",
+    "tree-sitter-javascript",
 ]

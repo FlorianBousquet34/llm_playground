@@ -1,12 +1,12 @@
 from dotenv import load_dotenv
-from neo4j import GraphDatabase, RoutingControl
 from neomodel import StructuredNode, StringProperty, config, ArrayProperty
+
+from utils_neo4j import clear_db_file
+from text_embedding import embed_documents
+from utils import read_file_as_object_array, recursive_text_splitter
 
 # Configure the database connection
 config.DATABASE_URL = 'bolt://neo4j:password@localhost:7687'
-
-from text_embedding import embed_documents
-from utils import read_file_as_object_array, recursive_text_splitter
 
 class DocumentNode(StructuredNode):        
     content = StringProperty()
@@ -26,18 +26,7 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
             file_array.append(file_object)
     
     # Clear db 
-    uri = "neo4j://localhost:7687"
-    auth = ("neo4j", "password")
-    with GraphDatabase.driver(uri, auth=auth) as driver:
-        driver.execute_query(
-            """
-                MATCH (n:DocumentNode)
-                WHERE n.filename IN ($file_paths)
-                DELETE n
-            """,
-            file_paths=file_paths,
-            database_="neo4j", routing_= RoutingControl.WRITE
-        )
+    clear_db_file(file_paths)
 
     if len(file_array) > 0:
         
@@ -57,4 +46,4 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
         for i, embedding in enumerate(embeddings):
             DocumentNode(vector=embedding.tolist(), content=splits[i].page_content, filename=splits[i].metadata["filename"]).save()
         
-        print("Updating done!")    
+        print("Updating done!")

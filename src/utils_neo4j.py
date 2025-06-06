@@ -26,3 +26,18 @@ def perform_vector_search(query: str, pokemon: Optional[str] = None, top_k: int 
                 database_="neo4j", routing_=RoutingControl.READ
             )
     return list(map(lambda x: {r:x[r] for r in results.keys}, results.records))
+
+
+def clear_db_file(file_paths):
+    uri = "neo4j://localhost:7687"
+    auth = ("neo4j", "password")
+    with GraphDatabase.driver(uri, auth=auth) as driver:
+        driver.execute_query(
+            """
+                MATCH (n)
+                WHERE n.filename IN ($file_paths)
+                DETACH DELETE n
+            """,
+            file_paths=file_paths,
+            database_="neo4j", routing_= RoutingControl.WRITE
+            )
