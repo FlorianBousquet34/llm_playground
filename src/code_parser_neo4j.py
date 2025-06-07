@@ -14,13 +14,27 @@ class CodeNode(StructuredNode):
     byte_start = IntegerProperty()
     byte_end = IntegerProperty()
     content = StringProperty()
-    parent = RelationshipTo('CodeNode', "IS_IN")
-    children = RelationshipTo('CodeNode', "IS_FROM")
-    imported_in = RelationshipTo('CodeNode', "IS_IMPORTED_IN")
-    exported_to = RelationshipTo('CodeNode', "IS_EXPORTED_TO")
+    child_order = IntegerProperty()
+    parent = RelationshipTo('CodeNode', "is in")
+    imported_in = RelationshipTo('CodeNode', "is imported in")
     
 
 js_parser = Parser(Language(tsjs.language()))
+
+def try_matching_import(node: Node, graph_node: CodeNode, file_path: str):
+    if node.parent is not None and node.parent.parent is not None and node.parent.parent.parent is not None:
+        statement = node.parent.parent.parent
+        statement_string_children = [child for child in statement.children if child.type == 'string']
+        if len(statement_string_children) > 0:
+            statement_string_fragment = [ch.text for ch in statement_string_children[0].children if ch.type == 'string_fragment']
+            if len(statement_string_fragment) > 0:
+                import_file_relative = statement_string_fragment[0].decode()
+                import_file_name = os.path.abspath("/".join(file_path.split("/")[:-1])+'/' + import_file_relative)
+                imported_element = node.text.decode()
+                method_declaration = CodeNode.nodes.get_or_node(content=imported_element, filename=import_file_name, node_type='export_specifier')
+                if method_declaration is not None:
+                    graph_node.imported_in.connect(method_declaration)
+                    graph_node.save()
 
 def parse_file(file_path):
     # Read the files
@@ -32,34 +46,24 @@ def parse_file(file_path):
     clear_db_file([file_path])
     
     # Tree walk
-    current_nodes = [{"parent": None, "node": tree.root_node}]
+    current_nodes = [{"parent": None, "node": tree.root_node, "order": 0}]
     while len(current_nodes) > 0:
         found_nodes = []
         for node_object in current_nodes:
             node: Node = node_object["node"]
+            child_order = node_object["order"]
             graph_node = CodeNode(content=node.text.decode(), node_type=node.type,filename=file_path,
-                                  byte_start=node.start_byte, byte_end=node.end_byte)
+                                  byte_start=node.start_byte, byte_end=node.end_byte, child_order=child_order)
             parent: CodeNode = node_object["parent"]
             graph_node.save()
             if parent is not None:
                 # Connect to parent
                 graph_node.parent.connect(parent)
-                parent.children.connect(graph_node)
-                parent.save()
             if node.type == "import_specifier":
                 # Connect to import
-                # FIXME existance check
-                statement = node.parent.parent.parent
-                import_file_relative = [ch.text for ch in [child for child in statement.children if child.type == 'string'][0].children if ch.type == 'string_fragment'][0].decode()
-                import_file_name = os.path.abspath("/".join(file_path.split("/")[:-1])+'/' + import_file_relative)
-                imported_element = node.text.decode()
-                method_declaration = CodeNode.nodes.get(content=imported_element, filename=import_file_name, node_type='export_specifier')
-                method_declaration.exported_to.connect(graph_node)
-                graph_node.imported_in.connect(method_declaration)
-                method_declaration.save()
-            graph_node.save()
+                try_matching_import(node, graph_node, file_path)
             if node.child_count > 0:
-                found_nodes.extend([{"parent": graph_node, "node": x} for x in node.children])
+                found_nodes.extend([{"parent": graph_node, "node": x, "order": i} for i, x in enumerate(node.children)])
         current_nodes = found_nodes
 
 parse_file('/home/florian/ws/copicrotte/data/code-repository/PrimeNumber.js')
