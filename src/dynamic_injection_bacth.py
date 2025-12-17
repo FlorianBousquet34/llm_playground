@@ -5,13 +5,17 @@ from time import sleep
 from data_injection_neo4j import refresh_files
 from simple_file_checksum import get_checksum
 
-index_path = './data/file-index.json'
+INDEX_FREQUENCY = 5
+
+index_path = 'data/file-index.json'
 file_index = {}
 if os.path.exists(index_path):
     with open(index_path, 'r') as f:
         file_index = json.loads(f.read())
-    
-folder_to_index = "./data/file-repository"
+
+folder_to_index = "data/file-repository"
+
+# TODO Auto index code folder
 
 while True:
     # finding modified / created files
@@ -45,4 +49,4 @@ while True:
         refresh_files(files_deleted + files_modified)
         with open(index_path, 'w') as f:
             json.dump(file_index, f)
-    sleep(5)
+    sleep(INDEX_FREQUENCY)

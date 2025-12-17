@@ -8,7 +8,7 @@ from utils import read_file_as_object_array, recursive_text_splitter
 # Configure the database connection
 config.DATABASE_URL = 'bolt://neo4j:password@localhost:7687'
 
-class DocumentNode(StructuredNode):        
+class DocumentNode(StructuredNode):
     content = StringProperty()
     filename = StringProperty()
     vector = ArrayProperty()
@@ -24,12 +24,12 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
         file_object = read_file_as_object_array(file_path)
         if file_object is not None:
             file_array.append(file_object)
-    
+
     # Clear db 
     clear_db_file(file_paths)
 
     if len(file_array) > 0:
-        
+
         # Split the markdown files into chunks
         splits = recursive_text_splitter(file_array, chunck_size, overlap_length)
 
@@ -45,5 +45,5 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
         # Insert the embeddings into the database
         for i, embedding in enumerate(embeddings):
             DocumentNode(vector=embedding.tolist(), content=splits[i].page_content, filename=splits[i].metadata["filename"]).save()
-        
+
         print("Updating done!")

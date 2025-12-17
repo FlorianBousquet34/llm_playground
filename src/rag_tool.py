@@ -1,23 +1,19 @@
 from dotenv import load_dotenv
 from pydantic_ai import Agent
-
-from llm_model import LocalLLMModel
+from pydantic_ai.models.openai import OpenAIChatModel
+from llm_client import LocalLLMClient
 from utils_neo4j import perform_code_search, perform_vector_search
-from utils import build_context_from_results
-
+from utils import build_context_from_graph_results, build_context_from_results
+from pydantic_ai.providers.openai import OpenAIProvider
 # Load the environment variables
 load_dotenv()
 
-model = LocalLLMModel()
+client = LocalLLMClient("NousResearch/Hermes-3-Llama-3.2-3B")
+model = OpenAIChatModel("", provider = OpenAIProvider(openai_client = client))
 
 # Create PydanticAI Agent
 agent = Agent(
-    model=model,
-    system_prompt=(
-        "Answer the user's question.",
-        "Use the similarity search tool for finding documentation.",
-        "Use the graph search tool with keywords for finding code implementation."
-    ),
+    model=model
 )
 
 
@@ -25,8 +21,9 @@ agent = Agent(
 @agent.tool_plain
 def perform_similarity_search(query: str) -> str:
     """
-    Perform a similarity or vector search on the documentation database.
-    This is best used for finding important documentation which have semantic similarity to the user's question.
+    Perform a similarity search on the documentation database.
+    This is best used for finding important documentation which have semantic
+    similarity to the user's question.
 
     Args:
         query (str): A concise question for which you need to get the most relevant information.
@@ -42,6 +39,7 @@ def perform_graph_search(query: str) -> str:
     """
     Perform a graph search on the code graph database.
     This is best used for finding important code related to the user's question.
+    It should be called for question regarding my code base.
 
     Args:
         query (str): Keywords for which you need to get the most relevant information.
@@ -49,14 +47,8 @@ def perform_graph_search(query: str) -> str:
     print("Graph search tool was called:", query)
 
     results = perform_code_search(query)
-    return build_context_from_results(results)
+    return build_context_from_graph_results(results)
 
 
-def main():
-    query = "What function in my code base should I use to find if a number is prime?"
-    result = agent.run_sync(query)
-    print(result.output)
-
-
-if __name__ == "__main__":
-    main()
+query = "Where is the function isNumberPrime in my code base ?"
+result = agent.run_sync(query)

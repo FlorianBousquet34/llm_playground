@@ -31,7 +31,7 @@ def try_matching_import(node: Node, graph_node: CodeNode, file_path: str):
                 import_file_relative = statement_string_fragment[0].decode()
                 import_file_name = os.path.abspath("/".join(file_path.split("/")[:-1])+'/' + import_file_relative)
                 imported_element = node.text.decode()
-                method_declaration = CodeNode.nodes.get_or_node(content=imported_element, filename=import_file_name, node_type='export_specifier')
+                method_declaration = CodeNode.nodes.get_or_none(content=imported_element, filename=import_file_name, node_type='export_specifier')
                 if method_declaration is not None:
                     graph_node.imported_in.connect(method_declaration)
                     graph_node.save()
@@ -66,5 +66,5 @@ def parse_file(file_path):
                 found_nodes.extend([{"parent": graph_node, "node": x, "order": i} for i, x in enumerate(node.children)])
         current_nodes = found_nodes
 
-parse_file('/home/florian/ws/copicrotte/data/code-repository/PrimeNumber.js')
-parse_file('/home/florian/ws/copicrotte/data/code-repository/AllPrimeNumber.js')
+parse_file('data/code-repository/PrimeNumber.js')
+parse_file('data/code-repository/AllPrimeNumber.js')

@@ -1,12 +1,11 @@
-import gc
 import torch
 from transformers import AutoModel, AutoTokenizer
 import socket
 from urllib3.connection import HTTPConnection
 import os
 
-def load_text_embedding_model(model_name='thenlper/gte-small'): #'Alibaba-NLP/gte-large-en-v1.5'
-    local_path = f"./models/{model_name}"
+def load_text_embedding_model(model_name='thenlper/gte-small'):
+    local_path = f"models/{model_name}"
     if os.path.exists(local_path):
         model = AutoModel.from_pretrained(f"{local_path}/model")
         tokenizer = AutoTokenizer.from_pretrained(f"{local_path}/tokenizer")

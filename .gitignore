@@ -3,3 +3,6 @@ data/file-index.json
 src/__pycache__
 .env
 models
+.tests
+**.egg-info
+.venv

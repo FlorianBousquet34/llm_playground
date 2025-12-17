@@ -3,7 +3,7 @@ requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "copicrotte"
+name = "llm_playground"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -12,7 +12,7 @@ dependencies = [
     "lancedb",
     "langchain-openai",
     "langchain-text-splitters",
-    "pydantic-ai-slim[openai,logfire]",
+    "pydantic-ai-slim[openai,logfire,google,huggingface]",
     "python-dotenv",
     "torch",
     "transformers>=4.36.0",
