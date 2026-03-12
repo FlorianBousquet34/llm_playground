@@ -1,0 +1,10 @@
+langchain-openai
+langchain-text-splitters
+pydantic-ai-slim[openai,logfire]
+python-dotenv
+neo4j
+neomodel
+simple-file-checksum
+tree-sitter
+tree-sitter-javascript
+ollama

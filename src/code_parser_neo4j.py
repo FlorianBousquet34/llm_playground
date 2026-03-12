@@ -36,6 +36,13 @@ def try_matching_import(node: Node, graph_node: CodeNode, file_path: str):
                     graph_node.imported_in.connect(method_declaration)
                     graph_node.save()
 
+def refresh_code_files(files_deleted, files_modified):
+    print(f"Updating {len(files_deleted) + len(files_modified)} code files...")
+    clear_db_file(files_deleted)
+    for file in files_modified:
+        parse_file(file)
+    print("Updating code done!")
+
 def parse_file(file_path):
     # Read the files
     with open(file_path, 'rb') as f:
@@ -65,6 +72,3 @@ def parse_file(file_path):
             if node.child_count > 0:
                 found_nodes.extend([{"parent": graph_node, "node": x, "order": i} for i, x in enumerate(node.children)])
         current_nodes = found_nodes
-
-parse_file('data/code-repository/PrimeNumber.js')
-parse_file('data/code-repository/AllPrimeNumber.js')

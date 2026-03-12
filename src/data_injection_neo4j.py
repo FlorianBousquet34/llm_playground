@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from neomodel import StructuredNode, StringProperty, config, ArrayProperty
 
 from utils_neo4j import clear_db_file
-from text_embedding import embed_documents
+from text_embedding import OllamaEmbeddingModel
 from utils import read_file_as_object_array, recursive_text_splitter
 
 # Configure the database connection
@@ -18,7 +18,7 @@ load_dotenv()
 
 def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_size=512):
     # Read the files
-    print(f"Updating {len(file_paths)} files...")
+    print(f"Updating {len(file_paths)} documentation files...")
     file_array = []
     for file_path in file_paths:
         file_object = read_file_as_object_array(file_path)
@@ -39,11 +39,11 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
         ]
 
         # Compute the embeddings
-        embeddings = embed_documents(splits_as_string, chunk_size=model_chunk_size)
+        embeddings = OllamaEmbeddingModel.embed_documents(splits_as_string, chunk_size=model_chunk_size)
 
         # Save the embeddings to libsql
         # Insert the embeddings into the database
         for i, embedding in enumerate(embeddings):
-            DocumentNode(vector=embedding.tolist(), content=splits[i].page_content, filename=splits[i].metadata["filename"]).save()
+            DocumentNode(vector=embedding, content=splits[i].page_content, filename=splits[i].metadata["filename"]).save()
 
-        print("Updating done!")
+        print("Updating documentation done!")
