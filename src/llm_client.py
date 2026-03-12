@@ -21,7 +21,6 @@ class OllamaLLMClient(AsyncOpenAI):
                         call["function"]["arguments"] = json.loads(call["function"]["arguments"])
         http_tools = options.json_data["tools"]
         tools = [tool[tool["type"]] for tool in http_tools]
-        #tools = [perform_graph_search, perform_similarity_search]
         resp = call_ollama_llm_model(messages, self.model_name, tools)
         print(f"RESPONSE:\n{resp.message}")
         if resp.message is not None and resp.message.tool_calls is not None and len(resp.message.tool_calls) > 0:
