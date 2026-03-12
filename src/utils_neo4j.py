@@ -1,6 +1,6 @@
 from neo4j import GraphDatabase, RoutingControl
 
-from text_embedding import OllamaEmbeddingModel
+from src.text_embedding import OllamaEmbeddingModel
 
 uri = "neo4j://localhost:7687"
 auth = ("neo4j", "password")

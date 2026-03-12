@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
-from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
-from llm_client import OllamaLLMClient
-from utils_neo4j import perform_code_search, perform_vector_search
-from utils import build_context_from_graph_results, build_context_from_results
+from pydantic_ai import Agent
+from src.llm_client import OllamaLLMClient
+from src.utils_neo4j import perform_code_search, perform_vector_search
+from src.utils import build_context_from_graph_results, build_context_from_results
 from pydantic_ai.providers.openai import OpenAIProvider
 # Load the environment variables
 load_dotenv()
@@ -15,6 +15,9 @@ model = OpenAIChatModel("", provider = OpenAIProvider(openai_client = client))
 agent = Agent(
     model=model
 )
+
+def get_agent():
+    return agent
 
 
 # Define the retrieval tool
@@ -38,8 +41,9 @@ def perform_similarity_search(query: str) -> str:
 def perform_graph_search(query: list[str]) -> str:
     """
     Perform a search on the code database.
+    You can access my codebase using this tool.
     This is best used for finding important code related to the user's question.
-    It should be called for question regarding my code base.
+    It must be called for question regarding my code base.
     The function search for the given words in the code.
     Do not use spaces.
 
@@ -52,7 +56,3 @@ def perform_graph_search(query: list[str]) -> str:
     return build_context_from_graph_results(list(set([r
         for res in results
         for r in res])))
-
-
-query = "Where is the function isNumberPrime in my codebase ?"
-result = agent.run_sync(query)

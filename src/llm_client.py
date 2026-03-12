@@ -2,13 +2,13 @@ import datetime
 from pydantic_ai.models.openai import AsyncOpenAI
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from openai.types.chat.chat_completion import ChatCompletionMessage
-from llm_loader import call_ollama_llm_model
+from src.llm_loader import call_ollama_llm_model
 import uuid
 import json
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall, Function
 
 class OllamaLLMClient(AsyncOpenAI):
-    def __init__(self, model_name="llama3", api_key = None, organization = None, project = None, base_url = None, websocket_base_url = None, timeout = ..., max_retries = ..., default_headers = None, default_query = None, http_client = None, _strict_response_validation = False):
+    def __init__(self, model_name="qwen3.5:2b", api_key = None, organization = None, project = None, base_url = None, websocket_base_url = None, timeout = ..., max_retries = ..., default_headers = None, default_query = None, http_client = None, _strict_response_validation = False):
         super().__init__(api_key=api_key, organization=organization, project=project, base_url=base_url, websocket_base_url=websocket_base_url, timeout=timeout, max_retries=max_retries, default_headers=default_headers, default_query=default_query, http_client=http_client, _strict_response_validation=_strict_response_validation)
         self.model_name = model_name
         

@@ -8,3 +8,5 @@ simple-file-checksum
 tree-sitter
 tree-sitter-javascript
 ollama
+fastapi
+uvicorn
