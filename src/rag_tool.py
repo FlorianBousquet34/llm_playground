@@ -5,6 +5,8 @@ from src.llm_client import OllamaLLMClient
 from src.utils_neo4j import perform_code_search, perform_vector_search
 from src.utils import build_context_from_graph_results, build_context_from_results
 from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai._run_context import get_current_run_context
+
 # Load the environment variables
 load_dotenv()
 
@@ -22,7 +24,7 @@ def get_agent():
 
 # Define the retrieval tool
 @agent.tool_plain
-def perform_similarity_search(query: str) -> str:
+def perform_similarity_search(query: str, _req_id: str = None) -> str:
     """
     Perform a similarity search on the documentation database.
     This is best used for finding important documentation which have semantic
@@ -34,11 +36,17 @@ def perform_similarity_search(query: str) -> str:
     print("Similarity search tool was called:", query)
 
     results = perform_vector_search(query, top_k=10)
-    return build_context_from_results(results)
+    response = build_context_from_results(results)
+    agent.model.client.history[_req_id].append({
+        "role": "tool",
+        "tool_name": "perform_similarity_search",
+        "content": response
+    })
+    return response
 
 # Define the retrieval tool
 @agent.tool_plain
-def perform_graph_search(query: list[str]) -> str:
+def perform_graph_search(query: list[str], _req_id: str = None) -> str:
     """
     Perform a search on the code database.
     You can access my codebase using this tool.
@@ -53,6 +61,12 @@ def perform_graph_search(query: list[str]) -> str:
     print("Graph search tool was called:", query)
 
     results = [perform_code_search(q) for q in query]
-    return build_context_from_graph_results(list(set([r
+    response = build_context_from_graph_results(list(set([r
         for res in results
         for r in res])))
+    agent.model.client.history[_req_id].append({
+        "role": "tool",
+        "tool_name": "perform_graph_search",
+        "content": response
+    })
+    return response

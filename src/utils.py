@@ -44,9 +44,9 @@ def read_file_as_object_array(file_path):
     return None
 
 def build_context_from_results(results):
-    return "---\n".join(
+    return "\n".join(
         [
-            f"Title: {result['filename']}\nContent:\n{result['content']}\n"
+            f"In the file {result['filename']} there is the following content {result['content']}\n"
             for result in results
         ]
     )
@@ -56,7 +56,7 @@ def build_context_from_graph_results(results):
     nodes = [result[0] for result in results] + [result[2] for result in results]
     nodes = {v:k for k,v in enumerate(list(set(nodes)))}
     
-    return ("---\n".join([
+    return ("\n".join([
         f"Node {v} is \nFile: {k[0]['filename']}\nType: {k[0]['node_type']}\nContent:\n{k[0]['content']}\n"
         for v,k in enumerate(nodes.items())
         if k[0]['node_type'] not in ["statement_block", "program"]
