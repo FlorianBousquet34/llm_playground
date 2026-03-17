@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 from neomodel import StructuredNode, StringProperty, config, ArrayProperty
 
-from utils_neo4j import clear_db_file
-from text_embedding import OllamaEmbeddingModel
-from utils import read_file_as_object_array, recursive_text_splitter
+from src.utils_neo4j import clear_db_file
+from src.text_embedding import OllamaEmbeddingModel
+from src.utils import read_file_as_object_array, recursive_text_splitter
 
 # Configure the database connection
 config.DATABASE_URL = 'bolt://neo4j:password@localhost:7687'

@@ -26,9 +26,10 @@ def get_agent():
 @agent.tool_plain
 def perform_similarity_search(query: str, _req_id: str = None) -> str:
     """
-    Perform a similarity search on the documentation database.
+    Perform a similarity search on the documentation.
     This is best used for finding important documentation which have semantic
     similarity to the user's question.
+    Use in priority for questions regarding specification.
 
     Args:
         query (str): A concise question for which you need to get the most relevant information.
@@ -48,11 +49,12 @@ def perform_similarity_search(query: str, _req_id: str = None) -> str:
 @agent.tool_plain
 def perform_graph_search(query: list[str], _req_id: str = None) -> str:
     """
-    Perform a search on the code database.
+    Perform a graph search on a tree sitter graph of my codebase.
     You can access my codebase using this tool.
     This is best used for finding important code related to the user's question.
     It must be called for question regarding my code base.
-    The function search for the given words in the code.
+    The function searches for the given words in the code.
+    Use in priority for questions regarding code.
     Do not use spaces.
 
     Args:

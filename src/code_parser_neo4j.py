@@ -3,7 +3,7 @@ from tree_sitter import Language, Node, Parser
 import tree_sitter_javascript as tsjs
 from neomodel import StructuredNode, StringProperty, config, IntegerProperty, RelationshipTo
 
-from utils_neo4j import clear_db_file
+from src.utils_neo4j import clear_db_file
 
 # Configure the database connection
 config.DATABASE_URL = 'bolt://neo4j:password@localhost:7687'

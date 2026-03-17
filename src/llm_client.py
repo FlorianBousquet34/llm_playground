@@ -13,6 +13,8 @@ class OllamaLLMClient(AsyncOpenAI):
         super().__init__(api_key=api_key, organization=organization, project=project, base_url=base_url, websocket_base_url=websocket_base_url, timeout=timeout, max_retries=max_retries, default_headers=default_headers, default_query=default_query, http_client=http_client, _strict_response_validation=_strict_response_validation)
         self.model_name = model_name
         self.history = {}
+        # FIXME config file
+        self.system_prompt = "You are a function calling AI model. You are provided with function signatures. You may call one or more functions to assist with the user query. Don't make assumptions about what values to plug into functions. Use the tool_calls json item in your response to invoke tools. Give short answers, summarize if needed."
         
     async def request(self, cast_to, options, *args, **kwargs) -> ChatCompletion:
         req_id = get_current_run_context().metadata["req_id"]
@@ -25,8 +27,12 @@ class OllamaLLMClient(AsyncOpenAI):
                         call["function"]["arguments"].pop("_req_id", None)
         http_tools = options.json_data["tools"]
         tools = [tool[tool["type"]] for tool in http_tools]
-        resp = call_ollama_llm_model(messages, self.model_name, tools)
-        self.history[req_id].append(resp.message)
+        resp = call_ollama_llm_model(messages, self.system_prompt, self.model_name, tools)
+        self.history[req_id].append(resp.message.__deepcopy__())
+        if self.history[req_id][-1].get("tool_calls", None) is not None:
+                for call in self.history[req_id][-1]["tool_calls"]:
+                    if call.get("function", None) is not None and call["function"].get("arguments", None) is not None:
+                        call["function"]["arguments"].pop("_req_id", None)
         resp_uuid = str(uuid.uuid4())
         print(f"RESPONSE:\n{resp.message}")
         if resp.message is not None and resp.message.tool_calls is not None and len(resp.message.tool_calls) > 0:
