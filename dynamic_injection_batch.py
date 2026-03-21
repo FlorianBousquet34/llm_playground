@@ -2,6 +2,8 @@ import json
 import os
 from time import sleep
 
+from dotenv import load_dotenv
+
 from src.code_parser_neo4j import refresh_code_files
 from src.data_injection_neo4j import refresh_files
 from simple_file_checksum import get_checksum
@@ -11,6 +13,9 @@ from simple_file_checksum import get_checksum
 INDEXATION_CONFIGURATION_FILE = "data/indexation-configuration.json"
 
 if __name__ == "__main__":
+    # Load the environment variables
+    load_dotenv()
+    
     index_path = 'data/file-index.json'
     code_index_path = 'data/code-index.json'
     file_index = {}

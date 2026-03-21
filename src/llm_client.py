@@ -9,11 +9,11 @@ from openai.types.chat.chat_completion_message_function_tool_call import ChatCom
 from pydantic_ai._run_context import get_current_run_context
 
 class OllamaLLMClient(AsyncOpenAI):
-    def __init__(self, model_name="qwen3.5:2b", api_key = None, organization = None, project = None, base_url = None, websocket_base_url = None, timeout = ..., max_retries = ..., default_headers = None, default_query = None, http_client = None, _strict_response_validation = False):
+    def __init__(self, model_name, api_key = None, organization = None, project = None, base_url = None, websocket_base_url = None, timeout = ..., max_retries = ..., default_headers = None, default_query = None, http_client = None, _strict_response_validation = False):
         super().__init__(api_key=api_key, organization=organization, project=project, base_url=base_url, websocket_base_url=websocket_base_url, timeout=timeout, max_retries=max_retries, default_headers=default_headers, default_query=default_query, http_client=http_client, _strict_response_validation=_strict_response_validation)
-        self.model_name = model_name
         self.history = {}
         # FIXME config file
+        self.model_name = model_name
         self.system_prompt = "You are a function calling AI model. You are provided with function signatures. You may call one or more functions to assist with the user query. Don't make assumptions about what values to plug into functions. Use the tool_calls json item in your response to invoke tools. Give short answers, summarize if needed."
         
     async def request(self, cast_to, options, *args, **kwargs) -> ChatCompletion:

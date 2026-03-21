@@ -10,3 +10,4 @@ tree-sitter-javascript
 ollama
 fastapi
 uvicorn
+serpapi

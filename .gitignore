@@ -1,6 +1,7 @@
 data/neo4j
 data/file-index.json
 data/code-index.json
+data/search.md
 **/__pycache__
 .env
 models

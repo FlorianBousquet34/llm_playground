@@ -1,9 +1,8 @@
+from os import getenv
+
 from neo4j import GraphDatabase, RoutingControl
 
 from src.text_embedding import OllamaEmbeddingModel
-
-uri = "neo4j://localhost:7687"
-auth = ("neo4j", "password")
     
 def perform_vector_search(query: str, top_k: int = 5):
     
@@ -11,6 +10,9 @@ def perform_vector_search(query: str, top_k: int = 5):
     embedding = OllamaEmbeddingModel.embed_documents([query])[0]
 
     # Perform the vector search
+    uri = getenv("DB_URI")
+    auth = (getenv("DB_USER"), getenv("DB_PASSWORD"))
+    db = getenv("DB_NAME")
     with GraphDatabase.driver(uri, auth=auth) as driver:
         results = driver.execute_query(
                 """
@@ -21,13 +23,16 @@ def perform_vector_search(query: str, top_k: int = 5):
                     LIMIT $limit
                 """,
                 limit=top_k, embedding=embedding,
-                database_="neo4j", routing_=RoutingControl.READ
+                database_=db, routing_=RoutingControl.READ
             )
     return list(map(lambda x: {r:x[r] for r in results.keys}, results.records))
 
 def perform_code_search(query):
     
     # Perform the graph search
+    uri = getenv("DB_URI")
+    auth = (getenv("DB_USER"), getenv("DB_PASSWORD"))
+    db = getenv("DB_NAME")
     with GraphDatabase.driver(uri, auth=auth) as driver:
         results = driver.execute_query(
             """
@@ -37,12 +42,15 @@ def perform_code_search(query):
             RETURN n,r,k
             """,
             keyword=query,
-            database_="neo4j", routing_=RoutingControl.READ
+            database_=db, routing_=RoutingControl.READ
         )
     return results[0]
 
 def clear_db_file(file_paths):
     
+    uri = getenv("DB_URI")
+    auth = (getenv("DB_USER"), getenv("DB_PASSWORD"))
+    db = getenv("DB_NAME")
     with GraphDatabase.driver(uri, auth=auth) as driver:
         driver.execute_query(
             """
@@ -51,5 +59,5 @@ def clear_db_file(file_paths):
                 DETACH DELETE n
             """,
             file_paths=file_paths,
-            database_="neo4j", routing_= RoutingControl.WRITE
+            database_=db, routing_= RoutingControl.WRITE
             )

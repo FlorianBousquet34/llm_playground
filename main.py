@@ -1,6 +1,7 @@
 import json
 import uuid
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from ollama import Message
 from pydantic import BaseModel
@@ -12,6 +13,7 @@ from dynamic_injection_batch import INDEXATION_CONFIGURATION_FILE
 from src.llm_client import OllamaLLMClient
 from src.rag_tool import get_agent
 from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
@@ -30,6 +32,7 @@ class IndexedFolder(BaseModel):
 
 class SettingsModel(BaseModel):
     system_prompt: str
+    model_name: str
     indexed_folders: list[IndexedFolder]
     indexation_frequency: int
     
@@ -54,6 +57,7 @@ def update_settings(update_settings: SettingsModel):
     agent = get_agent()
     llm_client: OllamaLLMClient = agent.model.client
     llm_client.system_prompt = update_settings.system_prompt
+    llm_client.model_name = update_settings.model_name
     with open(INDEXATION_CONFIGURATION_FILE, "r") as f:
         indexation_conf_data = json.loads(f.read())
         indexation_conf_data["documentation_folders"]["text"]=[fld.path for fld in filter(lambda x: x.index_type == "documentation", update_settings.indexed_folders)]
@@ -73,6 +77,7 @@ def get_settings():
     index_frequency = indexation_conf_data["index_frequency"]
     return SettingsModel(
         system_prompt=llm_client.system_prompt,
+        model_name=llm_client.model_name,
         indexed_folders=[IndexedFolder(path=fld, index_type="documentation") for fld in doc_folder_to_index]
                         + [IndexedFolder(path=fld, index_type="code_javascript") for fld in js_code_folder_to_index],
         indexation_frequency=index_frequency
@@ -86,6 +91,9 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
+    # Load the environment variables
+    load_dotenv()
+    
     uvicorn.run(
         "main:app",
         host="127.0.0.1",
