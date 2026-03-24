@@ -67,62 +67,62 @@ def load_chat(chat_id: str):
             exchange_dict[q[6]] = {}
         if exchange_dict[q[6]].get(q[0], None) is None:
             exchange_dict[q[6]][q[0]] = {}
-        if q[1] is not None:
-            if exchange_dict[q[6]][q[0]].get("question", None) is None:
-                exchange_dict[q[6]][q[0]]["question"] = {
-                    "user_prompt": q[1],
-                    "asked_date": datetime.datetime.strftime(q[2], '%Y-%m-%d %H:%M:%S.%f')
-                }
-            if q[5] is not None:
-                if exchange_dict[q[6]][q[0]]["question"].get("history", None) is None:
-                    exchange_dict[q[6]][q[0]]["question"]["history"] = []
-                exchange_dict[q[6]][q[0]]["question"]["history"].append({
-                    "user_role": q[3],
-                    "message_content": q[4],
-                    "history_order": int(q[5])
-                })
-            else:
+        if exchange_dict[q[6]][q[0]].get("question", None) is None:
+            exchange_dict[q[6]][q[0]]["question"] = {
+                "user_prompt": q[1],
+                "asked_date": datetime.datetime.strftime(q[2], '%Y-%m-%d %H:%M:%S.%f')
+            }
+        if q[5] is not None:
+            if exchange_dict[q[6]][q[0]]["question"].get("history", None) is None:
                 exchange_dict[q[6]][q[0]]["question"]["history"] = []
+            exchange_dict[q[6]][q[0]]["question"]["history"].append({
+                "user_role": q[3],
+                "message_content": q[4],
+                "history_order": int(q[5])
+            })
         else:
-            exchange_dict[q[6]][q[0]]["question"] = None
+            exchange_dict[q[6]][q[0]]["question"]["history"] = []
             
     for r in answers:
         if exchange_dict.get(r[12], None) is None:
             exchange_dict[r[12]] = {}
-        if r[13] is not None:
-            if exchange_dict[r[12]].get(r[0], None) is None: 
-                exchange_dict[r[12]][r[0]] = {}
-            if exchange_dict[r[12]][r[0]].get("response", None) is None:
-                exchange_dict[r[12]][r[0]]["response"] = {
-                    "assistant_response": r[1],
-                    "creation_date": datetime.datetime.strftime(r[13], '%Y-%m-%d %H:%M:%S.%f')
-                }
-            if exchange_dict[r[12]][r[0]]["response"].get("history", None) is None:
-                exchange_dict[r[12]][r[0]]["response"]["history"] = {}
-            exchange_dict[r[12]][r[0]]["response"]["history"][r[2]] = {
-                "user_role": r[3],
-                "message_content": r[4],
-                "tool_name": r[5],
-                "thinking": r[6],
-                "history_order": int(r[7])
+        if exchange_dict[r[12]].get(r[0], None) is None: 
+            exchange_dict[r[12]][r[0]] = {}
+        if exchange_dict[r[12]][r[0]].get("response", None) is None:
+            exchange_dict[r[12]][r[0]]["response"] = {
+                "assistant_response": r[1],
+                "creation_date": datetime.datetime.strftime(r[13], '%Y-%m-%d %H:%M:%S.%f')
             }
-            if r[9] is not None:
-                if exchange_dict[r[12]][r[0]]["response"]["history"][r[2]].get("tool_calls", None) is None:
-                    exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"] = {}
-                exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]] = {
-                    "tool_name": r[8]
-                }
-                if r[10] is not None:
-                    if exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]].get("arguments", None) is None:
-                        exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]]["arguments"] = {}
-                    exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]]["arguments"][r[10]] = r[11]
-                else:
-                    exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]]["arguments"] = {}
-            else:
+        if exchange_dict[r[12]][r[0]]["response"].get("history", None) is None:
+            exchange_dict[r[12]][r[0]]["response"]["history"] = {}
+        exchange_dict[r[12]][r[0]]["response"]["history"][r[2]] = {
+            "user_role": r[3],
+            "message_content": r[4],
+            "tool_name": r[5],
+            "thinking": r[6],
+            "history_order": int(r[7])
+        }
+        if r[9] is not None:
+            if exchange_dict[r[12]][r[0]]["response"]["history"][r[2]].get("tool_calls", None) is None:
                 exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"] = {}
+            exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]] = {
+                "tool_name": r[8]
+            }
+            if r[10] is not None:
+                if exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]].get("arguments", None) is None:
+                    exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]]["arguments"] = {}
+                exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]]["arguments"][r[10]] = r[11]
+            else:
+                exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"][r[9]]["arguments"] = {}
         else:
-            exchange_dict[r[12]][r[0]] = None
+            exchange_dict[r[12]][r[0]]["response"]["history"][r[2]]["tool_calls"] = {}
     exchanges = exchange_dict.get(chat[0], None)
+    if exchanges is not None:
+        for e in exchanges.values():
+            if e.get("question", None) is None:
+                e["question"] = None
+            if e.get("response", None) is None:
+                e["response"] = None
     response = LoadedChat(chat_id=chat[0],
                 chat_name=chat[1],
                 creation_date=datetime.datetime.strftime(chat[2], '%Y-%m-%d %H:%M:%S.%f'),
