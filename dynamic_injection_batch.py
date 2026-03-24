@@ -95,7 +95,7 @@ if __name__ == "__main__":
                 code_file_index.pop(file_path)
                 
         if len(files_deleted) > 0 or len(files_modified) > 0:
-            refresh_code_files(files_deleted, files_modified)
+            refresh_code_files(files_deleted, files_modified, True)
             with open(code_index_path, 'w') as f:
                 json.dump(code_file_index, f)
         sleep(index_frequency)

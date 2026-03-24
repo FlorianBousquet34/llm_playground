@@ -8,3 +8,5 @@ models
 .tests
 **.egg-info
 .venv
+data/code-repository/src
+data/file-repository/Pokedex

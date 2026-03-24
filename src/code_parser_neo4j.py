@@ -36,12 +36,16 @@ def try_matching_import(node: Node, graph_node: CodeNode, file_path: str):
                     graph_node.imported_in.connect(method_declaration)
                     graph_node.save()
 
-def refresh_code_files(files_deleted, files_modified):
+def refresh_code_files(files_deleted, files_modified, log_progess=False):
     print(f"Updating {len(files_deleted) + len(files_modified)} code files...")
     clear_db_file(files_deleted)
-    for file in files_modified:
-        parse_file(file)
-    print("Updating code done!")
+    tot = len(files_modified)
+    for i_file, file in enumerate(files_modified):
+        if log_progess:
+            print(f"File {i_file + 1} / {tot}               ", end="\r")
+        if file.endswith(".js"):
+            parse_file(file)
+    print("\nUpdating code done!")
 
 def parse_file(file_path):
     # Read the files

@@ -21,9 +21,10 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
     print(f"Updating {len(file_paths)} documentation files...")
     file_array = []
     for file_path in file_paths:
-        file_object = read_file_as_object_array(file_path)
-        if file_object is not None:
-            file_array.append(file_object)
+        if file_path.endswith(".md"):
+            file_object = read_file_as_object_array(file_path)
+            if file_object is not None:
+                file_array.append(file_object)
 
     # Clear db 
     clear_db_file(file_paths)
@@ -39,7 +40,7 @@ def refresh_files(file_paths, chunck_size=512, overlap_length=100, model_chunk_s
         ]
 
         # Compute the embeddings
-        embeddings = OllamaEmbeddingModel.embed_documents(splits_as_string, chunk_size=model_chunk_size)
+        embeddings = OllamaEmbeddingModel.embed_documents(splits_as_string, chunk_size=model_chunk_size, log_progess=True)
 
         # Save the embeddings to libsql
         # Insert the embeddings into the database
