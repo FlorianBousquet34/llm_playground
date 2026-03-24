@@ -11,3 +11,4 @@ ollama
 fastapi
 uvicorn
 serpapi
+psycopg2-binary

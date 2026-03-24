@@ -85,7 +85,7 @@ def web_search(query: str, _req_id: str = None) -> str:
     response = perform_google_search(query)
     agent.model.client.history[_req_id].append({
         "role": "tool",
-        "tool_name": "perform_graph_search",
+        "tool_name": "web_search",
         "content": response
     })
     return response
