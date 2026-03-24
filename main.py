@@ -34,7 +34,8 @@ def new_chat(chat_creation_model: ChatCreationModel):
 @app.get("/chats", response_model=list[ChatModel])
 def get_chats():
     conn = init_postgres()
-    chats = fetch_all("select chat_id, chat_name, creation_date from chat", conn=conn)
+    chats = fetch_all("select chat_id, chat_name, creation_date from chat where archived = False "
+                      + "order by (select max(chat_exchange.exchange_date) from chat_exchange where chat_exchange.chat_id = chat.chat_id) desc", conn=conn)
     close(conn)
     return [
         ChatModel(chat_id=chat[0],
@@ -42,6 +43,13 @@ def get_chats():
                   creation_date=datetime.datetime.strftime(chat[2], '%Y-%m-%d %H:%M:%S.%f'))
         for chat in chats
     ]
+
+@app.delete("/chat/{chat_id}")
+def archive(chat_id: str):
+    conn = init_postgres()
+    conn.cursor().execute(f"update chat set archived = True where chat_id = '{chat_id}'")
+    commit(conn)
+    close(conn)
 
 @app.get("/chat/{chat_id}", response_model=LoadedChat)
 def load_chat(chat_id: str):
@@ -145,7 +153,6 @@ def chat_endpoint(chat_req: ChatRequest):
     result = agent.run_sync(
         user_prompt=chat_req.user_query,
         message_history=chat_req.message_history,
-        usage_limits=UsageLimits(request_limit=5, tool_calls_limit=3),
         metadata={"req_id": req_id}
     )
     history = llm_client.history.pop(req_id, None)

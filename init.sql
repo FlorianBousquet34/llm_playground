@@ -71,3 +71,5 @@ CREATE TABLE CHAT_ANSWER_HISTORY_TOOL_ARGUMENT (
     PRIMARY KEY (chat_answer_history_tool_argument_id),
     FOREIGN KEY (chat_answer_history_tool_call_id) REFERENCES CHAT_ANSWER_HISTORY_TOOL_CALL(chat_answer_history_tool_call_id)
 )
+
+ALTER TABLE CHAT ADD COLUMN ARCHIVED BOOLEAN DEFAULT FALSE;
